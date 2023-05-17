@@ -40,6 +40,11 @@ var OTPInputGroup = function (elementOrSelector, updateToInput = null) {
 				return instance.updateValue();
 			}
 
+			if (input.value.length == 0) {
+				input.dataset.otpInputRestore = '';
+				return instance.updateValue();
+			}
+
 			// more multiple character entered (eg. pasted),
 			// and it's the last input of the row,
 			// truncate to single character and save
