@@ -4,8 +4,8 @@
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>OTP Input Sample</title>
-	<script src="otp-input-group.js"></script>
+	<title>Vanilla OTP Demo</title>
+	<script src="vanilla-otp.js"></script>
 	<style>
 		section {
 			width: 100%;
@@ -63,8 +63,8 @@
 		<button>Alert value</button>
 	</section>
 <script>
-let otp = new OTPInputGroup('.otp-input', '#final');
 document.querySelector('button').addEventListener('click', function () {
+let otp = new VanillaOTP('.otp-input', '#final');
 	alert(otp.getValue());
 });
 </script>
