@@ -1,6 +1,6 @@
 "use strict";
 
-var OTPInputGroup = function (elementOrSelector, updateToInput = null) {
+var VanillaOTP = function (elementOrSelector, updateToInput = null) {
 	if (typeof elementOrSelector === 'string') {
 		this.container = document.querySelector(elementOrSelector);
 	} else if (elementOrSelector instanceof Element) {
@@ -33,15 +33,16 @@ var OTPInputGroup = function (elementOrSelector, updateToInput = null) {
 				return instance.updateValue();
 			}
 
+			// if a character is removed, do nothing and save
+			if (input.value.length == 0) {
+				input.dataset.otpInputRestore = '';
+				return instance.updateValue();
+			}
+
 			// if single character, save the value and go to next input (if any)
 			if (input.value.length == 1) {
 				input.dataset.otpInputRestore = input.value;
 				if (i+1 < inputCount) instance.inputs[i+1].focus();
-				return instance.updateValue();
-			}
-
-			if (input.value.length == 0) {
-				input.dataset.otpInputRestore = '';
 				return instance.updateValue();
 			}
 
@@ -121,11 +122,11 @@ var OTPInputGroup = function (elementOrSelector, updateToInput = null) {
 	}
 };
 
-OTPInputGroup.prototype.updateValue = function () {
+VanillaOTP.prototype.updateValue = function () {
 	if (this.updateTo) this.updateTo.value = this.getValue();
 };
 
-OTPInputGroup.prototype.getValue = function () {
+VanillaOTP.prototype.getValue = function () {
 	let value = '';
 	this.inputs.forEach(function (input) {
 		if (input.value == '') {
