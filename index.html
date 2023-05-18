@@ -60,12 +60,21 @@
 	</section>
 	<section>
 		<input type="text" id="final" placeholder="Final value" readonly>
-		<button>Alert value</button>
+		<button id="btn-alert">Alert current value</button>
+		<button id="btn-set">Set value</button>
 	</section>
 <script>
-document.querySelector('button').addEventListener('click', function () {
 let otp = new VanillaOTP('.otp-input', '#final');
+otp.setEmptyChar('#');
+document.querySelector('#btn-alert').addEventListener('click', function () {
 	alert(otp.getValue());
+});
+document.querySelector('#btn-set').addEventListener('click', function () {
+	let value;
+	do {
+		value = prompt("Please enter an integer value");
+	} while (value != null && isNaN(value));
+	otp.setValue(value);
 });
 </script>
 </body>

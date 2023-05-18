@@ -2,7 +2,7 @@
 A simple Vanilla JS frontend script to setup an OTP (One Time Password) input.
 
 ## Usage
-1. In HTML, create a container block, and place some text or number `<input>` in it according to the length of your OTP:
+1. In HTML, create a container block, and place some `<input>` of text/number/password type in it according to the length of your OTP:
 ```html
 <!-- 6 digits = 6 inputs -->
 <div id="otp-input">
