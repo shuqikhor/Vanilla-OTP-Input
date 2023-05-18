@@ -33,18 +33,18 @@ var VanillaOTP = function (elementOrSelector, updateToInput = null) {
 			// if not number, restore value
 			if (isNaN(input.value)) {
 				input.value = input.dataset.otpInputRestore || "";
-				return instance.updateValue();
+				return instance._updateValue();
 			}
 
 			// if a character is removed, do nothing and save
 			if (input.value.length == 0) {
-				return instance.saveInputValue(i);
+				return instance._saveInputValue(i);
 			}
 
 			// if single character, save the value and go to next input (if any)
 			if (input.value.length == 1) {
-				instance.saveInputValue(i);
-				instance.updateValue();
+				instance._saveInputValue(i);
+				instance._updateValue();
 				if (i+1 < inputCount) instance.inputs[i+1].focus();
 				return;
 			}
@@ -53,7 +53,7 @@ var VanillaOTP = function (elementOrSelector, updateToInput = null) {
 			// and it's the last input of the row,
 			// truncate to single character and save
 			if (i == inputCount - 1) {
-				return instance.setInputValue(i, input.value);
+				return instance._setInputValue(i, input.value);
 			}
 
 			// otherwise, put each character to each of the next input
@@ -64,7 +64,7 @@ var VanillaOTP = function (elementOrSelector, updateToInput = null) {
 				if (pos + i >= inputCount) break;
 
 				// paste value and save
-				instance.setInputValue(pos + i, chars[pos]);
+				instance._setInputValue(pos + i, chars[pos]);
 			}
 
 			// focus the input next to the last pasted character
@@ -75,7 +75,7 @@ var VanillaOTP = function (elementOrSelector, updateToInput = null) {
 		input.addEventListener("keydown", function (e) {
 			// backspace button
 			if (e.keyCode == 8 && input.value == '' && i != 0) {
-				instance.setInputValue(i - 1, '');
+				instance._setInputValue(i - 1, '');
 				instance.inputs[i-1].focus();
 				return;
 			}
@@ -85,10 +85,10 @@ var VanillaOTP = function (elementOrSelector, updateToInput = null) {
 				let selectionStart = input.selectionStart;
 
 				for (let pos = i + selectionStart; pos < inputCount - 1; pos++) {
-					instance.setInputValue(pos, instance.inputs[pos + 1].value);
+					instance._setInputValue(pos, instance.inputs[pos + 1].value);
 				}
 
-				instance.setInputValue(inputCount - 1, '');
+				instance._setInputValue(inputCount - 1, '');
 
 				// restore caret
 				input.selectionStart = selectionStart;
@@ -119,9 +119,9 @@ var VanillaOTP = function (elementOrSelector, updateToInput = null) {
 	}
 };
 
-VanillaOTP.prototype.updateValue = function () {
-	if (this.updateTo) this.updateTo.value = this.getValue();
-};
+VanillaOTP.prototype.setEmptyChar = function (char) {
+	this.emptyChar = char;
+}
 
 VanillaOTP.prototype.getValue = function () {
 	let value = '';
@@ -132,10 +132,6 @@ VanillaOTP.prototype.getValue = function () {
 	return value;
 };
 
-VanillaOTP.prototype.setEmptyChar = function (char) {
-	this.emptyChar = char;
-}
-
 VanillaOTP.prototype.setValue = function (value) {
 	if (isNaN(value)) {
 		console.error("Please enter an integer value.");
@@ -145,11 +141,11 @@ VanillaOTP.prototype.setValue = function (value) {
 	value = "" + value;
 	let chars = value.split("");
 	for (let i = 0; i < this.inputs.length; i++) {
-		this.setInputValue(i, chars[i] || "");
+		this._setInputValue(i, chars[i] || "");
 	}
 }
 
-VanillaOTP.prototype.setInputValue = function (index, value) {
+VanillaOTP.prototype._setInputValue = function (index, value) {
 	if (isNaN(value)) {
 		return console.error("Please enter an integer value.");
 	}
@@ -159,15 +155,19 @@ VanillaOTP.prototype.setInputValue = function (index, value) {
 	}
 
 	this.inputs[index].value = String(value).substring(0, 1);
-	this.saveInputValue(index);
-	this.updateValue();
+	this._saveInputValue(index);
+	this._updateValue();
 	return;
 }
 
-VanillaOTP.prototype.saveInputValue = function (index, value) {
+VanillaOTP.prototype._saveInputValue = function (index, value) {
 	if (!this.inputs[index]) {
 		return console.error("Index not found.");
 	}
 
 	this.inputs[index].dataset.otpInputRestore = value || this.inputs[index].value;
 }
+
+VanillaOTP.prototype._updateValue = function () {
+	if (this.updateTo) this.updateTo.value = this.getValue();
+};
