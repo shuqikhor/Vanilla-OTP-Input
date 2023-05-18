@@ -1,6 +1,9 @@
 "use strict";
 
 var VanillaOTP = function (elementOrSelector, updateToInput = null) {
+	// set default options
+	this.emptyChar = " ";
+
 	if (typeof elementOrSelector === 'string') {
 		this.container = document.querySelector(elementOrSelector);
 	} else if (elementOrSelector instanceof Element) {
@@ -19,7 +22,7 @@ var VanillaOTP = function (elementOrSelector, updateToInput = null) {
 		}
 	}
 
-	this.inputs = Array.from(this.container.querySelectorAll("input[type=text], input[type=number]"));
+	this.inputs = Array.from(this.container.querySelectorAll("input[type=text], input[type=number], input[type=password]"));
 	
 	let instance = this;
 	let inputCount = instance.inputs.length;
@@ -35,24 +38,22 @@ var VanillaOTP = function (elementOrSelector, updateToInput = null) {
 
 			// if a character is removed, do nothing and save
 			if (input.value.length == 0) {
-				input.dataset.otpInputRestore = '';
-				return instance.updateValue();
+				return instance.saveInputValue(i);
 			}
 
 			// if single character, save the value and go to next input (if any)
 			if (input.value.length == 1) {
-				input.dataset.otpInputRestore = input.value;
+				instance.saveInputValue(i);
+				instance.updateValue();
 				if (i+1 < inputCount) instance.inputs[i+1].focus();
-				return instance.updateValue();
+				return;
 			}
 
 			// more multiple character entered (eg. pasted),
 			// and it's the last input of the row,
 			// truncate to single character and save
 			if (i == inputCount - 1) {
-				input.value = input.value.substring(0, 1);
-				input.dataset.otpInputRestore = input.value;
-				return instance.updateValue();
+				return instance.setInputValue(i, input.value);
 			}
 
 			// otherwise, put each character to each of the next input
@@ -63,9 +64,7 @@ var VanillaOTP = function (elementOrSelector, updateToInput = null) {
 				if (pos + i >= inputCount) break;
 
 				// paste value and save
-				let targetInput = instance.inputs[pos + i];
-				targetInput.value = chars[pos];
-				targetInput.dataset.otpInputRestore = chars[pos];
+				instance.setInputValue(pos + i, chars[pos]);
 			}
 
 			// focus the input next to the last pasted character
@@ -76,9 +75,9 @@ var VanillaOTP = function (elementOrSelector, updateToInput = null) {
 		input.addEventListener("keydown", function (e) {
 			// backspace button
 			if (e.keyCode == 8 && input.value == '' && i != 0) {
-				instance.inputs[i-1].value = '';
+				instance.setInputValue(i - 1, '');
 				instance.inputs[i-1].focus();
-				return instance.updateValue();
+				return;
 			}
 
 			// delete button
@@ -86,17 +85,15 @@ var VanillaOTP = function (elementOrSelector, updateToInput = null) {
 				let selectionStart = input.selectionStart;
 
 				for (let pos = i + selectionStart; pos < inputCount - 1; pos++) {
-					instance.inputs[pos].value = instance.inputs[pos + 1].value;
-					instance.inputs[pos].dataset.otpInputRestore = instance.inputs[pos].value;
+					instance.setInputValue(pos, instance.inputs[pos + 1].value);
 				}
 
-				instance.inputs[inputCount - 1].value = '';
-				instance.inputs[inputCount - 1].dataset.otpInputRestore = '';
+				instance.setInputValue(inputCount - 1, '');
 
 				// restore caret
 				input.selectionStart = selectionStart;
 				e.preventDefault();
-				return instance.updateValue();
+				return;
 			}
 
 			// left button
@@ -106,7 +103,7 @@ var VanillaOTP = function (elementOrSelector, updateToInput = null) {
 					instance.inputs[i-1].focus();
 					instance.inputs[i-1].select();
 				}
-				return instance.updateValue();
+				return;
 			}
 
 			// right button
@@ -116,7 +113,7 @@ var VanillaOTP = function (elementOrSelector, updateToInput = null) {
 					instance.inputs[i+1].focus();
 					instance.inputs[i+1].select();
 				}
-				return instance.updateValue();
+				return;
 			}
 		});
 	}
@@ -128,12 +125,49 @@ VanillaOTP.prototype.updateValue = function () {
 
 VanillaOTP.prototype.getValue = function () {
 	let value = '';
+	let instance = this;
 	this.inputs.forEach(function (input) {
-		if (input.value == '') {
-			value += ' ';
-		} else {
-			value += input.value;
-		}
+		value += (input.value == '') ? instance.emptyChar : input.value;
 	});
 	return value;
 };
+
+VanillaOTP.prototype.setEmptyChar = function (char) {
+	this.emptyChar = char;
+}
+
+VanillaOTP.prototype.setValue = function (value) {
+	if (isNaN(value)) {
+		console.error("Please enter an integer value.");
+		return;
+	}
+
+	value = "" + value;
+	let chars = value.split("");
+	for (let i = 0; i < this.inputs.length; i++) {
+		this.setInputValue(i, chars[i] || "");
+	}
+}
+
+VanillaOTP.prototype.setInputValue = function (index, value) {
+	if (isNaN(value)) {
+		return console.error("Please enter an integer value.");
+	}
+
+	if (!this.inputs[index]) {
+		return console.error("Index not found.");
+	}
+
+	this.inputs[index].value = String(value).substring(0, 1);
+	this.saveInputValue(index);
+	this.updateValue();
+	return;
+}
+
+VanillaOTP.prototype.saveInputValue = function (index, value) {
+	if (!this.inputs[index]) {
+		return console.error("Index not found.");
+	}
+
+	this.inputs[index].dataset.otpInputRestore = value || this.inputs[index].value;
+}
