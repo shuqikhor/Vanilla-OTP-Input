@@ -33,7 +33,7 @@ let otp = OTPInput.getValue();
 ```
 6. Use `.setEmptyChar()` to set a replacement for the values of empty inputs (default is a space):
 ```js
-otp.setEmptyChar('*');
+OTPInput.setEmptyChar('*');
 // let's say the input boxes are now [1][2][ ][ ][3][4]
 // the final value would become '12**34'
 ```
