@@ -65,7 +65,6 @@
 	</section>
 <script>
 let otp = new VanillaOTP('.otp-input', '#final');
-otp.setEmptyChar('#');
 document.querySelector('#btn-alert').addEventListener('click', function () {
 	alert(otp.getValue());
 });
