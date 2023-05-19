@@ -82,7 +82,7 @@ var VanillaOTP = function (elementOrSelector, updateToInput = null) {
 
 			// delete button
 			if (e.keyCode == 46 && i != inputCount - 1) {
-				let selectionStart = input.selectionStart;
+				let selectionStart = input.selectionStart || 0;
 
 				for (let pos = i + selectionStart; pos < inputCount - 1; pos++) {
 					instance._setInputValue(pos, instance.inputs[pos + 1].value);
@@ -91,13 +91,13 @@ var VanillaOTP = function (elementOrSelector, updateToInput = null) {
 				instance._setInputValue(inputCount - 1, '');
 
 				// restore caret
-				input.selectionStart = selectionStart;
+				if (input.selectionStart) input.selectionStart = selectionStart;
 				e.preventDefault();
 				return;
 			}
 
 			// left button
-			if (e.keyCode == 37 && input.selectionStart == 0) {
+			if (e.keyCode == 37 && (input.selectionStart == null || input.selectionStart == 0)) {
 				if (i > 0) {
 					e.preventDefault();
 					instance.inputs[i-1].focus();
@@ -107,7 +107,7 @@ var VanillaOTP = function (elementOrSelector, updateToInput = null) {
 			}
 
 			// right button
-			if (e.keyCode == 39 && input.selectionEnd == input.value.length) {
+			if (e.keyCode == 39 && (input.selectionStart == null || input.selectionEnd == input.value.length)) {
 				if (i+1 < inputCount) {
 					e.preventDefault();
 					instance.inputs[i+1].focus();
