@@ -37,3 +37,8 @@ OTPInput.setEmptyChar('*');
 // let's say the input boxes are now [1][2][ ][ ][3][4]
 // the final value would become '12**34'
 ```
+
+## CDN
+You could import the script directly with jsdelivr:  
+https://cdn.jsdelivr.net/gh/shuqikhor/Vanilla-OTP-Input@main/vanilla-otp.min.js  
+https://cdn.jsdelivr.net/gh/shuqikhor/Vanilla-OTP-Input@main/vanilla-otp.js
